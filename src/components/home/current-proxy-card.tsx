@@ -990,9 +990,6 @@ export const CurrentProxyCard = () => {
       iconColor={currentProxy ? 'primary' : undefined}
       action={
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Button size="small" onClick={handleUpdateTransit}>
-            Test and select transit
-          </Button>
           <Tooltip
             title={t('home.components.currentProxy.actions.refreshDelay')}
           >
@@ -1027,6 +1024,17 @@ export const CurrentProxyCard = () => {
         <Box sx={{ py: 4, height: 24 }} />
       ) : currentProxy || (!isDirectMode && selectedGroup) ? (
         <Box>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            size="large"
+            startIcon={<NetworkCheckRounded />}
+            onClick={handleUpdateTransit}
+            sx={{ mb: 2, fontWeight: 'bold' }}
+          >
+            测速并更新中转
+          </Button>
           <Box
             sx={{
               display: 'flex',
