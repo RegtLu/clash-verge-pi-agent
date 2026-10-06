@@ -11,6 +11,6 @@ await build({
   format: 'esm',
   target: 'node22',
   banner: {
-    js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);",
+    js: "import { createRequire as __networkAgentCreateRequire } from 'node:module'; const require = __networkAgentCreateRequire(import.meta.url);",
   },
 })

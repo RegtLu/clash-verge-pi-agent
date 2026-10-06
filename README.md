@@ -2,8 +2,10 @@
 
 An experimental fork of [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev)
 with a Pi-powered network assistant and DeepSeek integration. The assistant
-diagnoses DNS, proxy settings and HTTPS connectivity, and offers configuration
-previews that can be applied and undone from the app.
+diagnoses DNS, proxy settings and HTTPS connectivity, executes terminal commands
+for user-requested fixes, and offers Clash setting previews that can be applied
+and undone from the app. Conversations and drafts persist locally across page
+navigation and restarts.
 
 See [the assistant setup and limitations](./network-agent/README.md). After
 installing the prerequisites and dependencies, run

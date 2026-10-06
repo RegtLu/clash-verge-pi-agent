@@ -17,7 +17,7 @@ export interface NetworkAgentResult {
 }
 
 export interface NetworkAgentEvent {
-  type: 'text' | 'tool_start' | 'tool_end'
+  type: 'text' | 'tool_start' | 'tool_update' | 'tool_end'
   text?: string
   id?: string
   name?: string

@@ -267,6 +267,7 @@ export interface TranslationResources {
       applied: string
       apply: string
       assistant: string
+      clear: string
       configurationPrompt: string
       configure: string
       description: string
@@ -279,13 +280,19 @@ export interface TranslationResources {
         systemProxy: string
         tun: string
       }
+      inputHint: string
+      interrupted: string
       placeholder: string
       running: string
       send: string
       stop: string
+      stopped: string
+      storageError: string
+      terminalEnabled: string
       title: string
       undo: string
       undone: string
+      welcome: string
       you: string
     }
     profiles: {

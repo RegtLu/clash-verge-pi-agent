@@ -89,6 +89,10 @@ pub async fn network_agent_chat(
     let mut command = Command::new(node);
     command
         .arg(agent_script()?)
+        .env(
+            "NETWORK_AGENT_BACKUP_DIR",
+            dirs::app_home_dir().stringify_err()?.join("network-agent-backups"),
+        )
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
@@ -130,6 +134,28 @@ pub async fn network_agent_chat(
         _ = tokio::time::sleep(Duration::from_secs(180)) => Err("Diagnostic timed out.".into()),
     };
     CANCELLATIONS.lock().await.remove(&id);
+    if child.try_wait().stringify_err()?.is_none() {
+        if let Some(pid) = child.id() {
+            // Let Pi abort its detached terminal children before terminating the worker.
+            #[cfg(unix)]
+            let _ = Command::new("/bin/kill")
+                .args(["-TERM", &pid.to_string()])
+                .status()
+                .await;
+            #[cfg(windows)]
+            let _ = Command::new("taskkill")
+                .args(["/PID", &pid.to_string(), "/T", "/F"])
+                .creation_flags(0x08000000)
+                .status()
+                .await;
+        }
+        if tokio::time::timeout(Duration::from_secs(3), child.wait())
+            .await
+            .is_err()
+        {
+            let _ = child.kill().await;
+        }
+    }
     result
 }
 

@@ -1,19 +1,22 @@
 # Pi network assistant
 
-This local prototype adds an AI Network Assistant page to Clash Verge Rev. It uses
-the official Pi agent runtime (`@earendil-works/pi-agent-core` 1.0.4) and Pi's
-DeepSeek adapter. The default model is `deepseek-flash`, with thinking disabled.
+This prototype adds an AI Network Assistant page to Clash Verge Rev. It uses the
+official Pi agent runtime (`@earendil-works/pi-agent-core` 1.0.4), Pi Coding Agent's
+native terminal tool (`@earendil-works/pi-coding-agent` 1.0.4), and Pi's DeepSeek
+adapter. The default model is `deepseek-flash`, with thinking disabled.
 
 React sends requests through Tauri IPC. Rust supplies a small settings snapshot
 and launches the bundled Node.js worker over stdin/stdout. Pi calls bounded
 diagnostic tools, streams its progress back to the page, and produces a summary.
 The API key is read inside the worker; it is never supplied to the webview.
 
-The tools inspect OS proxy settings, DNS, default routes, proxy environment
+The diagnostic tools inspect OS proxy settings, DNS, default routes, proxy environment
 variables and the local proxy listener, and compare direct and proxy HTTPS HEAD
 requests. Controller secrets, subscription URLs and node passwords are excluded
 from the settings snapshot. Diagnostic evidence, including network addresses, is
-sent to DeepSeek when the assistant is used.
+sent to DeepSeek when the assistant is used. The terminal also supports broader
+commands and user-requested configuration changes; it is not restricted to the
+four app setting previews.
 
 ## Run
 
@@ -30,7 +33,8 @@ bash scripts/run-network-assistant.sh
 
 Open **AI Network Assistant** in the sidebar. Choose **Diagnose network**, or
 describe the failing application/hostname in the composer. Expand **Diagnostic
-evidence** to inspect the actual tool results. **Stop** cancels the worker.
+evidence** on a reply to inspect its commands and results. **Stop** cancels the
+worker and its active terminal process tree.
 
 The launcher limits debug-build disk usage. Exit any other Clash Verge client
 before starting this prototype if you want to apply settings: upstream refuses
@@ -67,25 +71,58 @@ npm start --prefix network-agent -- 'Check why Chrome cannot access Google.'
 
 Set `NETWORK_AGENT_CONFIG_DIR` to inspect a different saved app configuration.
 Saved settings are not proof of the live core state; the listener and OS tools
-provide additional evidence. CLI changes are previews only.
+provide additional evidence. CLI app-setting changes are previews; terminal
+commands also execute in the CLI.
 
 ## Setting changes
 
 Pi's `propose_change` tool generates previews for proxy mode, system proxy, TUN
-and IPv6. It has no configuration-writing or shell-execution tool. The app applies
+and IPv6. The app applies
 each preview only when **Apply this change** is clicked, using the existing Clash
 Verge configuration commands. A stale preview is rejected. The inverse is saved
-before applying the change, and **Undo latest change** restores the most recent
+before applying the change, and **Undo latest Clash setting** restores the most recent
 setting when a newer change has not superseded it.
 
-This first version does not edit subscription profiles, routing rules, DNS
-resolvers, browser extensions, VPN settings or proxy-node selections. It runs on
-request rather than as a scheduled background monitor. Conversations live in the
-page's memory. Leaving the page cancels an active diagnostic.
+## Terminal and conversations
+
+The assistant uses Pi's `bash` tool on macOS/Linux and `powershell` on Windows.
+Commands run with the current user's permissions, in the home directory unless
+`NETWORK_AGENT_WORK_DIR` is set. The default command timeout is 30 seconds, with
+a maximum of 60 seconds. The whole request is limited to 150 seconds and eight
+agent turns. Commands stream their output to the reply's evidence panel.
+
+For example, ask it to inspect `launchctl` proxy variables and shell startup files,
+or to fix a confirmed proxy-port mismatch. A diagnosis uses read-only commands;
+a requested fix may execute commands that change configuration. The prompt tells
+the agent to back up existing files, explain rollback and verify the result.
+Native requests supply `NETWORK_AGENT_BACKUP_DIR` for those backups. Terminal
+commands are not sandboxed, and backup creation is an agent instruction rather
+than an enforced transaction. The dedicated **Undo latest Clash setting** control
+only covers the four app previews; terminal changes need their own rollback
+commands. Known DeepSeek keys and common credential formats are redacted from
+terminal results, and the prompt excludes credential-file reads.
+
+The page has a fixed input area and a separate scrolling conversation. Enter
+sends, Shift+Enter inserts a new line, and IME composition does not submit a
+message. Old replies are memoized and streamed text updates are coalesced.
+Scrolling upward pauses automatic following until the view returns near the end.
+
+The latest 80 messages, previews and draft are saved in the app's local webview
+storage. Saved evidence is limited to 8 KiB per tool result. Leaving the page
+keeps an active task running. Reloading or restarting restores the conversation
+and marks incomplete replies as interrupted; it does not resume commands. The
+latest 24 messages, up to 8,000 characters each, are supplied as conversation
+context. **Clear conversation** removes the local conversation and draft.
+
+The assistant runs on request rather than as a scheduled background monitor.
+Dedicated previews do not yet cover subscriptions, rules, DNS resolver editing,
+browser extensions, VPN settings or node selections. Terminal access enables
+additional operations but does not provide dedicated integrations for them.
 
 The sidecar is generated with `pnpm agent:build`, and the Tauri development/build
 hooks rebuild it. `npm test --prefix network-agent` covers credential exclusion,
-preview-only behavior and unsafe diagnostic arguments.
+preview-only behavior, unsafe diagnostic arguments, real terminal execution and
+process-tree cancellation.
 
 Upstream references: [Pi agent runtime](https://github.com/earendil-works/pi/tree/main/packages/agent),
 [DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/).
