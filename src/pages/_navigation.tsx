@@ -4,6 +4,7 @@ import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined'
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined'
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined'
 import SubjectOutlinedIcon from '@mui/icons-material/SubjectOutlined'
 import WifiOutlinedIcon from '@mui/icons-material/WifiOutlined'
 import { type ComponentType, type ReactNode } from 'react'
@@ -21,6 +22,7 @@ import { navigationItems } from './_navigation-meta'
 import ConnectionsPage from './connections'
 import HomePage from './home'
 import LogsPage from './logs'
+import NetworkAgentPage from './network-agent'
 import ProfilePage from './profiles'
 import ProxyPage from './proxies'
 import RulesPage from './rules'
@@ -35,6 +37,14 @@ type NavigationItem = {
 }
 
 export const navItems: NavigationItem[] = [
+  {
+    ...navigationItems.networkAgent,
+    icon: [
+      <SmartToyOutlinedIcon key="mui" />,
+      <SmartToyOutlinedIcon key="svg" />,
+    ],
+    Component: NetworkAgentPage,
+  },
   {
     ...navigationItems.home,
     icon: [<HomeOutlinedIcon key="mui" />, <HomeSvg key="svg" />],

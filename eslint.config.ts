@@ -16,6 +16,7 @@ export default defineConfig([
   pluginESx.configs['flat/restrict-to-es2022'],
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    ignores: ['network-agent/**'],
 
     plugins: {
       js: eslintJS,
@@ -160,6 +161,13 @@ export default defineConfig([
         projectService: false,
         project: './scripts/perf/tsconfig.node.json',
       },
+    },
+  },
+  {
+    files: ['network-agent/*.mjs'],
+    extends: [eslintJS.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 ])

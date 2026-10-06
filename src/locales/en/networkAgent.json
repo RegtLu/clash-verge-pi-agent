@@ -1,0 +1,25 @@
+{
+  "title": "AI Network Assistant",
+  "description": "The assistant sends diagnostic evidence to DeepSeek. Preview and apply individual setting changes here; the latest change can be undone.",
+  "diagnose": "Diagnose network",
+  "configure": "Review configuration",
+  "diagnosisPrompt": "Diagnose my network. Compare direct and proxy connectivity to api.deepseek.com and www.google.com, inspect proxy, DNS and routes, and explain the evidence. Do not propose changes yet.",
+  "configurationPrompt": "Inspect my current network and suggest minimal useful configuration changes with previews. Explain the purpose and effect of each change; do not propose enabling TUN without evidence that it is needed.",
+  "you": "You",
+  "assistant": "Network assistant",
+  "evidence": "Diagnostic evidence",
+  "running": "Collecting evidence and analyzing…",
+  "placeholder": "For example: Google fails in Chrome while terminal requests work. Check the likely cause.",
+  "send": "Send",
+  "stop": "Stop",
+  "apply": "Apply this change",
+  "undo": "Undo latest change",
+  "applied": "Setting applied. Run another diagnosis to check the result.",
+  "undone": "The latest change was undone.",
+  "fields": {
+    "mode": "Proxy mode",
+    "systemProxy": "System proxy",
+    "tun": "TUN mode",
+    "ipv6": "IPv6"
+  }
+}

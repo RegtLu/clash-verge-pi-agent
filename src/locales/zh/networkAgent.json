@@ -1,0 +1,25 @@
+{
+  "title": "AI 网络助手",
+  "description": "助手会把诊断证据发送给 DeepSeek。配置建议可逐项预览并应用，最近一次修改支持撤销。",
+  "diagnose": "一键诊断网络",
+  "configure": "检查配置建议",
+  "diagnosisPrompt": "诊断我的网络。对比 api.deepseek.com 和 www.google.com 的直连与代理连通性，检查系统代理、DNS 和路由，给出有证据的结论。暂不提出配置修改。",
+  "configurationPrompt": "检查我的当前网络配置，提出有实际帮助的最小配置修改并生成预览。说明每项修改的用途和影响；没有必要性的证据时不要建议开启 TUN。",
+  "you": "你",
+  "assistant": "网络助手",
+  "evidence": "诊断证据",
+  "running": "正在收集证据并分析…",
+  "placeholder": "例如：终端能访问 Google，但 Chrome 打不开，帮我检查原因。",
+  "send": "发送",
+  "stop": "停止",
+  "apply": "应用这项修改",
+  "undo": "撤销最近一次修改",
+  "applied": "配置已应用，请再次诊断以检查效果。",
+  "undone": "已撤销最近一次修改。",
+  "fields": {
+    "mode": "代理模式",
+    "systemProxy": "系统代理",
+    "tun": "TUN 模式",
+    "ipv6": "IPv6"
+  }
+}

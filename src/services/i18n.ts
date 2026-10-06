@@ -82,6 +82,7 @@ type LocaleModule = {
 }
 
 const STARTUP_LANGUAGE_SECTIONS = [
+  'networkAgent',
   'layout',
   'home',
   'shared',
@@ -115,7 +116,9 @@ const loadLanguageSections = async (
   try {
     const entries = await Promise.all(
       sections.map(async (section) => {
-        const loader = localeLoaders[language]?.[section]
+        const loader =
+          localeLoaders[language]?.[section] ??
+          localeLoaders[FALLBACK_LANGUAGE]?.[section]
         if (!loader) {
           throw new Error(
             `Locale loader not found for language "${language}" section "${section}"`,

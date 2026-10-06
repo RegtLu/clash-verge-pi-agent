@@ -1,3 +1,26 @@
+# Clash Verge Pi Agent
+
+An experimental fork of [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev)
+with a Pi-powered network assistant and DeepSeek integration. The assistant
+diagnoses DNS, proxy settings and HTTPS connectivity, and offers configuration
+previews that can be applied and undone from the app.
+
+See [the assistant setup and limitations](./network-agent/README.md). After
+installing the prerequisites and dependencies, run
+`bash scripts/run-network-assistant.sh` and open **AI Network Assistant** in the
+sidebar. The API key stays in a local, ignored `.env` file.
+
+DeepSeek diagnostics, previews and cancellation have been exercised through
+native IPC. Successful live configuration changes still need verification with
+only this client running: upstream refuses a second Mihomo core when another
+Clash client is active. This fork has no packaged releases yet. The upstream
+release links below distribute the upstream app without this assistant.
+
+The original project documentation follows. The upstream GPL-3.0 license is
+preserved.
+
+---
+
 <h1 align="center">
   <img src="./src-tauri/icons/icon.png" alt="Clash" width="128" />
   <br>

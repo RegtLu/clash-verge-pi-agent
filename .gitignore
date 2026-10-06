@@ -1,4 +1,10 @@
 node_modules
+.env
+.env.*
+!.env.example
+src-tauri/resources/network-agent.mjs
+output/playwright/
+output/network-agent-*.local.*
 .pnpm-store
 .DS_Store
 dist

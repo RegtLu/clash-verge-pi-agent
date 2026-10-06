@@ -1,4 +1,8 @@
 export const navigationItems = {
+  networkAgent: {
+    label: 'networkAgent.title',
+    path: '/network-agent',
+  },
   home: { label: 'layout.components.navigation.tabs.home', path: '/' },
   proxies: {
     label: 'layout.components.navigation.tabs.proxies',

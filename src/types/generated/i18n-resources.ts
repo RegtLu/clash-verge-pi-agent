@@ -263,6 +263,31 @@ export interface TranslationResources {
         title: string
       }
     }
+    networkAgent: {
+      applied: string
+      apply: string
+      assistant: string
+      configurationPrompt: string
+      configure: string
+      description: string
+      diagnose: string
+      diagnosisPrompt: string
+      evidence: string
+      fields: {
+        ipv6: string
+        mode: string
+        systemProxy: string
+        tun: string
+      }
+      placeholder: string
+      running: string
+      send: string
+      stop: string
+      title: string
+      undo: string
+      undone: string
+      you: string
+    }
     profiles: {
       components: {
         card: {
