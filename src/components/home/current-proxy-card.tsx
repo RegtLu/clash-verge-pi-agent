@@ -37,6 +37,7 @@ import { useNavigate } from 'react-router'
 
 import { EnhancedCard } from '@/components/home/enhanced-card'
 import type { ProxySortType } from '@/components/proxy/use-filter-sort'
+import { useRuntimeConfig } from '@/hooks/use-clash'
 import { useGroupDelays } from '@/hooks/use-group-delays'
 import { useProfiles } from '@/hooks/use-profiles'
 import { useProxySelection } from '@/hooks/use-proxy-selection'
@@ -48,6 +49,9 @@ import {
   useProxiesData,
 } from '@/providers/app-data-context'
 import delayManager from '@/services/delay'
+import { showNotice } from '@/services/notice-service'
+import { findTransitProbe, type ChainConfig } from '@/services/transit-probe'
+import { updateFastestTransit } from '@/services/transit-selection'
 import {
   findCurrentGroupMember,
   getRecord,
@@ -539,6 +543,7 @@ export const CurrentProxyCard = () => {
   const theme = useTheme()
   const { proxyView } = useProxiesData()
   const { clashConfig } = useClashConfigData()
+  const { data: chainConfig } = useRuntimeConfig()
   const { refreshProxy } = useAppRefreshers()
   const { isCoreDataPending } = useCoreDataStatus()
   const { verge } = useVerge()
@@ -785,6 +790,15 @@ export const CurrentProxyCard = () => {
   const currentProxy = currentMember ? memberDetails(currentMember) : undefined
   const selectedProxyName = currentMember?.ref.name ?? ''
 
+  const activeChain = useMemo(() => {
+    if (!proxyView) return null
+    return findTransitProbe(chainConfig as ChainConfig | null, proxyView)
+  }, [chainConfig, proxyView])
+
+  const activeTransit = activeChain
+    ? proxyView?.groups.find((group) => group.name === activeChain.group)?.now
+    : undefined
+
   const currentDelay =
     currentMember && selectedGroupName
       ? delayManager.getDelayFix(currentMember, selectedGroupName)
@@ -909,6 +923,17 @@ export const CurrentProxyCard = () => {
     refreshProxy()
   })
 
+  const handleUpdateTransit = useLockFn(async () => {
+    try {
+      const result = await updateFastestTransit()
+      refreshProxy()
+      showNotice.info(result)
+    } catch (error) {
+      console.error('[TransitSelection] Failed to update transit', error)
+      showNotice.error('Failed to test transit nodes; see logs')
+    }
+  })
+
   const proxyOptions = useMemo(
     () =>
       isDirectMode || openSelect !== 'proxy'
@@ -972,6 +997,9 @@ export const CurrentProxyCard = () => {
       iconColor={currentProxy ? 'primary' : undefined}
       action={
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Button size="small" onClick={handleUpdateTransit}>
+            Test and select transit
+          </Button>
           <Tooltip
             title={t('home.components.currentProxy.actions.refreshDelay')}
           >
@@ -1057,6 +1085,15 @@ export const CurrentProxyCard = () => {
                     label={t('home.components.currentProxy.labels.directMode')}
                     color="success"
                     sx={{ mr: 0.5 }}
+                  />
+                )}
+                {activeChain && (
+                  <Chip
+                    size="small"
+                    color="info"
+                    variant="outlined"
+                    sx={{ mr: 0.5 }}
+                    label={`transit: ${activeTransit ?? 'unknown'} (${activeChain.candidates.length})`}
                   />
                 )}
                 {currentProxy?.udp && (
