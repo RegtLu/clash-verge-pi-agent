@@ -2,7 +2,6 @@
 import {
   AccessTimeRounded,
   ArrowDropDown,
-  ChevronRight,
   NetworkCheckRounded,
   WifiOff as SignalError,
   SignalWifi3Bar as SignalGood,
@@ -33,7 +32,6 @@ import {
 import { useLockFn } from 'ahooks'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
 
 import { EnhancedCard } from '@/components/home/enhanced-card'
 import type { ProxySortType } from '@/components/proxy/use-filter-sort'
@@ -539,7 +537,6 @@ const PersistentProxySelect = ({
 
 export const CurrentProxyCard = () => {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const theme = useTheme()
   const { proxyView } = useProxiesData()
   const { clashConfig } = useClashConfigData()
@@ -782,10 +779,6 @@ export const CurrentProxyCard = () => {
     [handleSelectChange, isDirectMode, selectedGroup, unsortedProxyOptions],
   )
 
-  const goToProxies = useCallback(() => {
-    navigate('/proxies')
-  }, [navigate])
-
   const currentMember = currentOption?.member
   const currentProxy = currentMember ? memberDetails(currentMember) : undefined
   const selectedProxyName = currentMember?.ref.name ?? ''
@@ -1027,15 +1020,6 @@ export const CurrentProxyCard = () => {
               {getSortIcon()}
             </IconButton>
           </Tooltip>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={goToProxies}
-            sx={{ borderRadius: 1.5 }}
-            endIcon={<ChevronRight fontSize="small" />}
-          >
-            {t('layout.components.navigation.tabs.proxies')}
-          </Button>
         </Box>
       }
     >
