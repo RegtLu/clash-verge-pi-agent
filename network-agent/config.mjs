@@ -61,16 +61,16 @@ export async function installedSnapshot() {
     (process.platform === 'darwin'
       ? resolve(
           homedir(),
-          'Library/Application Support/io.github.clash-verge-rev.clash-verge-rev',
+          'Library/Application Support/io.github.kuan-er.clash-verge-pi-agent',
         )
       : process.platform === 'win32'
         ? resolve(
             process.env.APPDATA || homedir(),
-            'io.github.clash-verge-rev.clash-verge-rev',
+            'io.github.kuan-er.clash-verge-pi-agent',
           )
         : resolve(
             process.env.XDG_DATA_HOME || resolve(homedir(), '.local/share'),
-            'io.github.clash-verge-rev.clash-verge-rev',
+            'io.github.kuan-er.clash-verge-pi-agent',
           ))
   const read = async (name) => {
     try {

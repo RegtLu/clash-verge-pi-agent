@@ -73,6 +73,23 @@ fn env_file() -> CmdResult<PathBuf> {
     Ok(dirs::app_home_dir().stringify_err()?.join("network-agent.env"))
 }
 
+fn agent_node() -> CmdResult<PathBuf> {
+    if let Some(path) = std::env::var_os("NETWORK_AGENT_NODE") {
+        return Ok(path.into());
+    }
+    #[cfg(target_os = "macos")]
+    {
+        let executable = std::env::current_exe().stringify_err()?;
+        if let Some(parent) = executable.parent() {
+            let packaged = parent.join("network-agent-node");
+            if packaged.exists() {
+                return Ok(packaged);
+            }
+        }
+    }
+    Ok("node".into())
+}
+
 #[tauri::command]
 pub async fn network_agent_chat(
     id: String,
@@ -85,8 +102,7 @@ pub async fn network_agent_chat(
         .map_err(|_| "A network diagnostic is already running.")?;
     let payload =
         json!({ "prompt": prompt, "history": history, "snapshot": snapshot().await?, "envFile": env_file()? });
-    let node = std::env::var_os("NETWORK_AGENT_NODE").unwrap_or_else(|| "node".into());
-    let mut command = Command::new(node);
+    let mut command = Command::new(agent_node()?);
     command
         .arg(agent_script()?)
         .env(

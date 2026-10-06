@@ -26,7 +26,7 @@ export const useUpdate = (enabled: boolean = true) => {
   const shouldCheck = enabled && auto_check_update !== false
 
   const fetchUpdate = async () => {
-    const result = await checkUpdateSafe()
+    const result = await checkUpdateSafe({ timeout: 15000 })
     updateLastCheckTime()
     return result
   }
@@ -36,10 +36,10 @@ export const useUpdate = (enabled: boolean = true) => {
     queryFn: fetchUpdate,
     enabled: shouldCheck,
     retry: 2,
-    staleTime: 60 * 60 * 1000,
-    refetchInterval: 24 * 60 * 60 * 1000,
+    staleTime: 15 * 60 * 1000,
+    refetchInterval: 60 * 60 * 1000,
     refetchIntervalInBackground: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   })
 
   const checkUpdate = async () => {

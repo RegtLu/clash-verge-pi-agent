@@ -55,9 +55,10 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com
 ```
 
 To use another location, set `NETWORK_AGENT_ENV_FILE`. Packaged apps default to
-`network-agent.env` in the app data directory. Node.js must be installed on the
-machine; use `NETWORK_AGENT_NODE` with an absolute executable path if the GUI
-does not inherit Node's PATH. The installer does not bundle Node.js yet.
+`network-agent.env` in the app data directory. macOS Pi packages bundle Node.js;
+other platforms require Node. Use `NETWORK_AGENT_NODE` with an absolute
+executable path to override the bundled runtime or the GUI's PATH lookup.
+See [macOS releases and updates](./RELEASING.md).
 
 ```sh
 NETWORK_AGENT_ENV_FILE=/path/to/.env pnpm dev:sidecar

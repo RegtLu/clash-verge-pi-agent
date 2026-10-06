@@ -1,0 +1,116 @@
+name: Pi macOS Release
+
+on:
+  push:
+    tags: ['pi-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pi-macos-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  HUSKY: 0
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_RELEASE_DEBUG: 0
+  CARGO_PROFILE_RELEASE_SPLIT_DEBUGINFO: 'off'
+
+jobs:
+  build:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            arch: aarch64
+          - target: x86_64-apple-darwin
+            arch: x86_64
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.21.0'
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.8.1
+          run_install: false
+      - name: Validate release version and signing key
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs'
+          const { version } = JSON.parse(readFileSync('package.json'))
+          if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error('Use a stable semver version.')
+          if (process.env.GITHUB_REF_TYPE === 'tag' && process.env.GITHUB_REF_NAME !== `pi-v${version}`)
+            throw new Error('Tag must match package.json version.')
+          if (!process.env.TAURI_SIGNING_PRIVATE_KEY) throw new Error('Configure TAURI_SIGNING_PRIVATE_KEY in repository secrets.')
+          JS
+          git merge-base --is-ancestor HEAD origin/pi-agent
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.99.0'
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: pi-macos-${{ matrix.target }}
+      - name: Install dependencies and prepare bundled runtimes
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm agent:setup
+          pnpm prebuild ${{ matrix.target }}
+          pnpm agent:runtime ${{ matrix.target }}
+      - name: Build signed macOS update artifacts
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: pnpm tauri build --target ${{ matrix.target }} --ci
+      - name: Collect architecture-specific artifacts
+        run: node scripts/pi-release-assets.mjs collect target/${{ matrix.target }}/release/bundle pi-release ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pi-macos-${{ matrix.arch }}
+          path: pi-release/*
+          if-no-files-found: error
+
+  publish:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.21.0'
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: pi-macos-*
+          path: pi-release
+          merge-multiple: true
+      - name: Generate update manifest
+        run: node scripts/pi-release-assets.mjs manifest pi-release
+      - name: Publish complete release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --json isDraft --jq .isDraft > /tmp/pi-release-draft; then
+            test "$(cat /tmp/pi-release-draft)" = true || { echo 'Published releases are immutable; increment the version.'; exit 1; }
+          else
+            gh release create "$GITHUB_REF_NAME" --verify-tag --draft --title "Clash Verge Pi $GITHUB_REF_NAME" --notes-file pi-release/notes.md
+          fi
+          gh release upload "$GITHUB_REF_NAME" pi-release/*.dmg pi-release/*.app.tar.gz pi-release/*.sig pi-release/latest.json --clobber
+          gh release edit "$GITHUB_REF_NAME" --draft=false --latest

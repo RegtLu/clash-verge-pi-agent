@@ -15,7 +15,9 @@ sidebar. The API key stays in a local, ignored `.env` file.
 DeepSeek diagnostics, previews and cancellation have been exercised through
 native IPC. Successful live configuration changes still need verification with
 only this client running: upstream refuses a second Mihomo core when another
-Clash client is active. This fork has no packaged releases yet. The upstream
+Clash client is active. Fork packages and in-app updates use
+[this repository's releases](https://github.com/kuan-er/clash-verge-pi-agent/releases).
+See [the macOS publishing workflow](./network-agent/RELEASING.md). The upstream
 release links below distribute the upstream app without this assistant.
 
 The original project documentation follows. The upstream GPL-3.0 license is

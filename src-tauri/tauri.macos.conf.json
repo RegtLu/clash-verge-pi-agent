@@ -1,14 +1,14 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "identifier": "io.github.clash-verge-rev.clash-verge-rev",
-  "productName": "Clash Verge",
+  "identifier": "io.github.kuan-er.clash-verge-pi-agent",
+  "productName": "Clash Verge Pi",
   "bundle": {
     "targets": ["app", "dmg"],
     "macOS": {
       "frameworks": [],
       "minimumSystemVersion": "11.0",
       "exceptionDomain": "",
-      "signingIdentity": null,
+      "signingIdentity": "-",
       "entitlements": "packages/macos/entitlements.plist",
       "dmg": {
         "background": "images/background.png",
@@ -30,6 +30,11 @@
         }
       },
       "infoPlist": "packages/macos/info_merge.plist"
-    }
+    },
+    "externalBin": [
+      "sidecar/verge-mihomo",
+      "sidecar/verge-mihomo-alpha",
+      "sidecar/network-agent-node"
+    ]
   }
 }

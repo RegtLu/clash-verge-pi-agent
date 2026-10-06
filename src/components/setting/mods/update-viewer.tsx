@@ -18,6 +18,7 @@ import { useUpdate } from '@/hooks/use-update'
 import { restartApp } from '@/services/cmds'
 import { showNotice } from '@/services/notice-service'
 import { useSetUpdateState, useUpdateState } from '@/services/states'
+import { forkReleaseUrl } from '@/services/update'
 import { openExternalUrl } from '@/utils/open-external-url'
 
 type MarkdownNode = {
@@ -233,7 +234,7 @@ export function UpdateViewer({ ref }: { ref?: Ref<DialogRef> }) {
   }, [updateInfo])
 
   const onUpdate = useLockFn(async () => {
-    if (!updateInfo?.body) return
+    if (!updateInfo?.available) return
     if (breakChangeFlag) {
       showNotice.error('settings.modals.update.messages.breakChangeError')
       return
@@ -314,9 +315,7 @@ export function UpdateViewer({ ref }: { ref?: Ref<DialogRef> }) {
             size="small"
             sx={{ whiteSpace: 'nowrap' }}
             onClick={() => {
-              openUrlWithNotice(
-                `https://github.com/clash-verge-rev/clash-verge-rev/releases/tag/v${updateInfo?.version}`,
-              )
+              openUrlWithNotice(forkReleaseUrl(updateInfo?.version))
             }}
           >
             {t('settings.modals.update.actions.goToRelease')}
@@ -333,8 +332,14 @@ export function UpdateViewer({ ref }: { ref?: Ref<DialogRef> }) {
       }}
       okBtn={t('settings.modals.update.actions.update')}
       cancelBtn={t('shared.actions.cancel')}
-      onClose={() => setOpen(false)}
-      onCancel={() => setOpen(false)}
+      loading={updateState}
+      disableCancel={updateState}
+      onClose={() => {
+        if (!updateState) setOpen(false)
+      }}
+      onCancel={() => {
+        if (!updateState) setOpen(false)
+      }}
       onOk={onUpdate}
     >
       <Box

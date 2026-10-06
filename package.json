@@ -1,6 +1,6 @@
 {
   "name": "clash-verge",
-  "version": "2.5.8",
+  "version": "0.1.0",
   "license": "GPL-3.0-only",
   "scripts": {
     "start": "tauri dev -f verge-dev,dev-sidecar",
@@ -42,7 +42,8 @@
     "perf:build": "node scripts/perf/build.mjs",
     "perf:run": "node scripts/perf/run.mjs",
     "perf:compare": "node scripts/perf/compare.mjs",
-    "perf:test": "node --test scripts/perf/report.test.mjs"
+    "perf:test": "node --test scripts/perf/report.test.mjs",
+    "agent:runtime": "node scripts/prepare-network-agent-runtime.mjs"
   },
   "dependencies": {
     "@dnd-kit/collision": "^0.5.0",

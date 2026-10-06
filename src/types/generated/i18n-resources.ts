@@ -1239,6 +1239,7 @@ export interface TranslationResources {
         update: {
           actions: {
             goToRelease: string
+            newVersion: string
             update: string
           }
           alerts: {
